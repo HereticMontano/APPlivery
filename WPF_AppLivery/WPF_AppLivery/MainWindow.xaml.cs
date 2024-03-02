@@ -1,19 +1,10 @@
 ﻿using Repository;
 using Repository.Dto;
-using System;
+using Repository.Entity;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace WPF_AppLivery
 {
@@ -22,13 +13,35 @@ namespace WPF_AppLivery
     /// </summary>
     public partial class MainWindow : Window
     {
+        private List<People> Authors { get; set; }
+        private ComicVineRepository Repo { get; set; }
         public MainWindow()
         {
             InitializeComponent();
+            Authors = new List<People>();
+            Repo = new ComicVineRepository();
+        }
 
-            var repo = new ComicVineRepository();
-            //repo.GetPeople(new PeopleFilter() {NameArtist = "Miller" });
-            //repo.GetIssues();
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            LoadNextAuthors();
+        }
+
+        private async void LoadNextAuthors()
+        {
+            var nextGroup = await Repo.GetPeople(new PeopleFilter() { Offset = Authors.Count(), ShortByName = "asc" });
+            Authors.AddRange(nextGroup.Results);
+
+            Resources["AuthorsList"] = Authors.Select(x => x.Name).ToArray();
+        }
+
+        private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            var scrollViewer = (ScrollViewer)sender;
+            if (Authors.Any() && scrollViewer.VerticalOffset == scrollViewer.ScrollableHeight)
+            {
+                LoadNextAuthors();
+            }
         }
     }
 }

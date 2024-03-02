@@ -32,20 +32,10 @@ namespace Repository
         public async Task<BaseResponse<List<People>>> GetPeople(PeopleFilter filter)
         {
             var filterByName = string.IsNullOrWhiteSpace(filter.NameArtist) ? string.Empty : $"name:{filter.NameArtist}";
-            HttpResponseMessage response = await client.GetAsync($"people/{KEY_AND_FORMAT}&offset={filter.Offset}&filter={filterByName}");
+            HttpResponseMessage response = await client.GetAsync($"people/{KEY_AND_FORMAT}&offset={filter.Offset}&filter={filterByName}&sort=name:{filter.ShortByName}");
             if (response.IsSuccessStatusCode)
             {
-                try
-                {
-                    var iss = await response.Content.ReadAsAsync<BaseResponse<List<People>>>();
-                    return iss;
-                }
-                catch (Exception ex)
-                {
-
-                    throw;
-                }
-              
+                return await response.Content.ReadAsAsync<BaseResponse<List<People>>>();
             }
             return null;
         }
