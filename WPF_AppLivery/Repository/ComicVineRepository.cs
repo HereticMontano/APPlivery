@@ -15,15 +15,14 @@ namespace Repository
             client.DefaultRequestHeaders.Add("User-Agent", customUserAgent);
             client.BaseAddress = new Uri("https://comicvine.gamespot.com/api/");
         }
-        public async Task<BaseResponse<List<Issue>>> GetIssues()
+        public async Task<BaseResponse<List<Issue>>> GetIssuesByAuthor(int id)
         {
-
-            HttpResponseMessage response = await client.GetAsync($"issues/{KEY_AND_FORMAT}&filter=name:Ultimate%20Spider-Man");
+            //Esta api no permite obtener comic basados en el autor, asique voy a simular traer distincos comics
+            HttpResponseMessage response = await client.GetAsync($"issues/{KEY_AND_FORMAT}&offset={new Random().Next(99400)}" );
             if (response.IsSuccessStatusCode)
             {
 
-                var iss = await response.Content.ReadAsAsync<BaseResponse<List<Issue>>>();
-                return iss;
+                return await response.Content.ReadAsAsync<BaseResponse<List<Issue>>>();
 
             }
             return null;
